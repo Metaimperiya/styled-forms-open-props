@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Styled Forms - Open Props Demo</title>
+  <style>
+    /* ============================================================
+       OPEN PROPS IMPORTS
+    ============================================================ */
+    @import url("https://unpkg.com/open-props");
+    @import url("https://unpkg.com/open-props/normalize.min.css");
+    @import url("https://unpkg.com/open-props/buttons.min.css");
+
+    /* ============================================================
+       CUSTOM STYLES
+    ============================================================ */
+    :root {
+      --icon-error: url(https://api.iconify.design/ic:baseline-error.svg?color=%23ff6b6b);
+      --icon-search: url(https://api.iconify.design/ic:search.svg?color=%2300000077);
+      --icon-email: url(https://api.iconify.design/ic:email.svg?color=%2300000077);
+      --icon-url: url(https://api.iconify.design/ic:link.svg?color=%2300000077);
+      --icon-user: url(https://api.iconify.design/ic:person.svg?color=%2300000077);
+      --icon-user-editing: url(https://api.iconify.design/ic:person-outline.svg?color=%2300000077);
+      --icon-tel: url(https://api.iconify.design/ic:phone.svg?color=%2300000077);
+      --icon-tel-editing: url(https://api.iconify.design/ic:phone-in-talk.svg?color=%2300000077);
+      --icon-password: url(https://api.iconify.design/ic:baseline-lock.svg?color=%2300000077);
+      --icon-password-editing: url(https://api.iconify.design/ic:baseline-lock-open.svg?color=%2300000077);
+      --icon-no-edit: url(https://api.iconify.design/ic:baseline-edit-off.svg?color=%2300000077);
+      --icon-arrow-down: url(https://api.iconify.design/ic:keyboard-arrow-down.svg?color=%2300000077);
+      --icon-arrow-up: url(https://api.iconify.design/ic:keyboard-arrow-up.svg?color=%2300000077);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --icon-error: url(https://api.iconify.design/ic:baseline-error.svg?color=%23ff6b6b);
+        --icon-search: url(https://api.iconify.design/ic:search.svg?color=%23ffffff77);
+        --icon-email: url(https://api.iconify.design/ic:email.svg?color=%23ffffff77);
+        --icon-url: url(https://api.iconify.design/ic:link.svg?color=%23ffffff77);
+        --icon-user: url(https://api.iconify.design/ic:person.svg?color=%23ffffff77);
+        --icon-user-editing: url(https://api.iconify.design/ic:person-outline.svg?color=%23ffffff77);
+        --icon-tel: url(https://api.iconify.design/ic:phone.svg?color=%23ffffff77);
+        --icon-tel-editing: url(https://api.iconify.design/ic:phone-in-talk.svg?color=%23ffffff77);
+        --icon-password: url(https://api.iconify.design/ic:baseline-lock.svg?color=%23ffffff77);
+        --icon-password-editing: url(https://api.iconify.design/ic:baseline-lock-open.svg?color=%23ffffff77);
+        --icon-no-edit: url(https://api.iconify.design/ic:baseline-edit-off.svg?color=%23ffffff77);
+        --icon-arrow-down: url(https://api.iconify.design/ic:keyboard-arrow-down.svg?color=%23ffffff77);
+        --icon-arrow-up: url(https://api.iconify.design/ic:keyboard-arrow-up.svg?color=%23ffffff77);
+      }
+    }
+
+    body::after {
+      content: var(--icon-tel-editing) var(--icon-password-editing) var(--icon-user-editing) var(--icon-arrow-up);
+      opacity: 0;
+      position: absolute;
+      z-index: -1;
+    }
+
+    /* ============================================================
+       FIELDSET STYLES
+    ============================================================ */
+    fieldset {
+      counter-reset: errors;
+      border-color: var(--surface-2);
+      box-shadow: var(--shadow-3);
+      padding-inline: var(--size-4);
+      padding-block: var(--size-2) var(--size-3);
+      transition: box-shadow .4s var(--ease-out-4);
+    }
+
+    fieldset:focus-within {
+      box-shadow: var(--shadow-6);
+    }
+
+    fieldset:focus-within > legend {
+      color: var(--link);
+    }
+
+    fieldset > div:has(:placeholder-shown:required, :not(:placeholder-shown):invalid, :not([placeholder]):required) > label {
+      position: relative;
+    }
+
+    fieldset > div:has(:placeholder-shown:required, :not(:placeholder-shown):invalid, :not([placeholder]):required) > label::after {
+      content: "required";
+      position: absolute;
+      margin-block-start: .5ex;
+      margin-inline-start: 1ex;
+      text-indent: -200vw;
+      inline-size: 6px;
+      block-size: 6px;
+      border-radius: var(--radius-round);
+      background-color: var(--red-4);
+      box-shadow: 0 0 var(--size-2) var(--red-4);
+    }
+
+    fieldset:has(:not(:placeholder-shown):invalid) legend::after {
+      text-transform: initial;
+      color: var(--red-5);
+      content: " (" counter(errors) " errors)";
+    }
+
+    fieldset:has(:not(:placeholder-shown):invalid) {
+      counter-increment: errors;
+    }
+
+    legend {
+      display: inline-flex;
+      gap: var(--size-2);
+      align-items: center;
+      min-block-size: 3ch;
+      border: 1px solid var(--surface-2);
+      padding-inline: 1.5ch;
+      border-radius: var(--radius-round);
+      text-transform: uppercase;
+      letter-spacing: var(--font-letterspacing-3);
+      font-size: var(--font-size-0);
+    }
+
+    @media (prefers-color-scheme: light) {
+      legend {
+        background: white;
+      }
+    }
+
+    /* ============================================================
+       INPUT BASE STYLES
+    ============================================================ */
+    :where(input:not(
+      button,
+      [type="button"],
+      [type="file"],
+      [type="number"],
+      [type="range"],
+      [type="color"],
+      [type="checkbox"],
+      [type="radio"]
+    )) {
+      line-height: 2.5;
+      padding-block: 0;
+      padding-inline: 1.75ch;
+      transition: background-color .5s var(--ease-3), outline-offset 145ms var(--ease-2);
+    }
+
+    :where(input:not(
+      button,
+      [type="button"],
+      [type="file"],
+      [type="number"],
+      [type="range"],
+      [type="color"],
+      [type="checkbox"],
+      [type="radio"]
+    )):placeholder-shown {
+      text-overflow: ellipsis;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      :where(input:not(
+        button,
+        [type="button"],
+        [type="file"],
+        [type="number"],
+        [type="range"],
+        [type="color"],
+        [type="checkbox"],
+        [type="radio"]
+      )):not(:placeholder-shown):invalid:not(:focus) {
+        animation: var(--animation-shake-x);
+        animation-duration: .4s;
+      }
+    }
+
+    :where(input:not(
+      button,
+      input[type="button"],
+      input[type="range"],
+      input[type="color"],
+      input[type="checkbox"],
+      input[type="radio"]
+    ), textarea) {
+      box-shadow: var(--shadow-2), 0 0 1px 1px var(--surface-2);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :where(input:not(
+        button,
+        input[type="button"],
+        input[type="range"],
+        input[type="color"],
+        input[type="checkbox"],
+        input[type="radio"]
+      ), textarea) {
+        box-shadow: var(--inner-shadow-2), 0 1px 0px 0px var(--dark-surface) inset, 0 -.5px 0px 0px var(--surface-2) inset;
+      }
+    }
+
+    input:is(
+      [type=text],
+      [type=password],
+      [type=url],
+      [type=email],
+      [type=tel]
+    ) {
+      padding-inline-end: 3.5ch;
+    }
+
+    input:is(
+      [type=text],
+      [type=password],
+      [type=url],
+      [type=email],
+      [type=tel],
+      [type=search]
+    ) {
+      flex-shrink: 1;
+      min-inline-size: 5ch;
+      max-inline-size: 100%;
+    }
+
+    input, textarea {
+      --dark-surface: var(--gray-11);
+    }
+
+    [readonly]:focus {
+      outline: none;
+    }
+
+    input:not(
+      button,
+      [disabled],
+      [readonly],
+      [type="file"],
+      [type="button"],
+      [type="submit"],
+      [type="reset"],
+      [type="checkbox"],
+      [type="radio"]
+    ), textarea, select {
+      color: var(--text-1);
+    }
+
+    @media (prefers-color-scheme: light) {
+      input:not(
+        button,
+        [disabled],
+        [readonly],
+        [type="file"],
+        [type="button"],
+        [type="submit"],
+        [type="reset"],
+        [type="checkbox"],
+        [type="radio"]
+      ), textarea, select {
+        background-color: white;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      input:not(
+        button,
+        [disabled],
+        [readonly],
+        [type="file"],
+        [type="button"],
+        [type="submit"],
+        [type="reset"],
+        [type="checkbox"],
+        [type="radio"]
+      ):is(:hover, :focus-within), textarea:is(:hover, :focus-within), select:is(:hover, :focus-within) {
+        background-color: var(--dark-surface);
+      }
+    }
+
+    input:not(
+      button,
+      [disabled],
+      [readonly],
+      [type="file"],
+      [type="button"],
+      [type="submit"],
+      [type="reset"],
+      [type="checkbox"],
+      [type="radio"]
+    ):not(:placeholder-shown, :not([placeholder])):invalid,
+    textarea:not(:placeholder-shown, :not([placeholder])):invalid {
+      background-image: var(--icon-error);
+      background-position: calc(100% - 1.5ch) center;
+    }
+
+    input:not(
+      button,
+      [disabled],
+      [readonly],
+      [type="file"],
+      [type="button"],
+      [type="submit"],
+      [type="reset"],
+      [type="checkbox"],
+      [type="radio"]
+    ):not(:focus-within):not(:placeholder-shown):invalid,
+    textarea:not(:focus-within):not(:placeholder-shown):invalid {
+      text-decoration: underline wavy var(--red-6);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      input:not(
+        button,
+        [disabled],
+        [readonly],
+        [type="file"],
+        [type="button"],
+        [type="submit"],
+        [type="reset"],
+        [type="checkbox"],
+        [type="radio"]
+      ):not(:focus-within):not(:placeholder-shown):invalid,
+      textarea:not(:focus-within):not(:placeholder-shown):invalid {
+        text-decoration: underline wavy var(--red-4);
+      }
+    }
+
+    input[readonly],
+    input[disabled] {
+      cursor: not-allowed;
+    }
+
+    [disabled] {
+      opacity: .5;
+      box-shadow: none;
+      cursor: auto;
+    }
+
+    /* ============================================================
+       FILE INPUT
+    ============================================================ */
+    @keyframes drop-zone {
+      from { box-shadow: 0 0 0 0 var(--link) }
+      to { box-shadow: 0 0 0 25px #0000 }
+    }
+
+    input[type="file"] {
+      border: none;
+    }
+
+    @media (prefers-color-scheme: light) {
+      input[type="file"] {
+        box-shadow: none;
+      }
+    }
+
+    input[type="file"].dropping {
+      outline: 2px dashed var(--link);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      input[type="file"].dropping {
+        animation: drop-zone 1.5s var(--ease-out-5) infinite;
+      }
+    }
+
+    :where(input[type=file])::-webkit-file-upload-button,
+    :where(input[type=file])::file-selector-button {
+      margin: var(--size-3);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :where(input[type=file])::-webkit-file-upload-button,
+      :where(input[type=file])::file-selector-button {
+        border-color: transparent;
+      }
+    }
+
+    /* ============================================================
+       SPECIFIC INPUT TYPES
+    ============================================================ */
+    input[type="number"] {
+      padding-block: .75ch;
+      padding-inline: 1.75ch .75ch;
+      min-inline-size: 10ch;
+    }
+
+    input[type="search"] {
+      background-image: var(--icon-search);
+      background-position: 1.5ch center;
+      padding-inline: 4ch 1.25ch;
+      border-radius: var(--radius-round);
+    }
+
+    input[type="search"]::-webkit-search-cancel-button {
+      margin-right: -5px;
+      padding: .1ch;
+    }
+
+    input[type="search"][list]:placeholder-shown {
+      background-image: var(--icon-search), var(--icon-arrow-down);
+      background-position: 1.5ch center, calc(100% - 1.25ch) center;
+      background-size: auto, 2.25ch;
+    }
+
+    input[type="search"][list]:placeholder-shown:focus {
+      background-image: var(--icon-search), var(--icon-arrow-up);
+    }
+
+    input[type="search"]::-webkit-calendar-picker-indicator {
+      color: transparent;
+    }
+
+    input[type="text"][list] {
+      background-image: var(--icon-arrow-down);
+      background-position: calc(100% - 1.25ch) center;
+      background-size: 2.25ch;
+    }
+
+    input[type="text"][list]:focus {
+      background-image: var(--icon-arrow-up);
+    }
+
+    input[type="text"][list]::-webkit-calendar-picker-indicator {
+      color: transparent;
+    }
+
+    input[type="password"] {
+      background-image: var(--icon-password);
+      background-position: calc(100% - 1.5ch) center;
+    }
+
+    input[type="password"]:focus {
+      background-image: var(--icon-password-editing);
+    }
+
+    input[type="email"] {
+      background-image: var(--icon-email);
+      background-position: calc(100% - 1.5ch) center;
+    }
+
+    input[readonly] {
+      background-image: var(--icon-no-edit);
+      background-position: calc(100% - 1.5ch) center;
+    }
+
+    input[type="url"] {
+      background-image: var(--icon-url);
+      background-position: calc(100% - 1.5ch) center;
+    }
+
+    input[type="tel"] {
+      background-image: var(--icon-tel);
+      background-position: calc(100% - 1.5ch) center;
+    }
+
+    input[type="tel"]:focus {
+      background-image: var(--icon-tel-editing);
+    }
+
+    input:where([name*="username"],[id*="username"]) {
+      background-image: var(--icon-user);
+      background-position: calc(100% - 1.5ch) center;
+      background-size: 1.75ch;
+    }
+
+    input:where([name*="username"],[id*="username"]):focus {
+      background-image: var(--icon-user-editing);
+    }
+
+    /* ============================================================
+       COLOR INPUT
+    ============================================================ */
+    input[type="color"] {
+      appearance: none;
+      background: none;
+      border: none;
+      padding: 0;
+      inline-size: var(--size-8);
+      block-size: var(--size-8);
+      border-radius: var(--radius-round);
+      overflow: hidden;
+      box-shadow: var(--shadow-5);
+    }
+
+    input[type="color"]::-webkit-color-swatch {
+      border: none;
+    }
+
+    input[type="color"]::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    /* ============================================================
+       TEXTAREA
+    ============================================================ */
+    textarea {
+      transition: background-color .5s var(--ease-3);
+    }
+
+    /* ============================================================
+       SELECT
+    ============================================================ */
+    select {
+      --_bg-light: #fff;
+      --_bg-dark: var(--surface-3);
+      --_bg: var(--_bg-light);
+      background-color: var(--_bg);
+      box-shadow: var(--shadow-3), 0 1px var(--surface-3);
+      appearance: none;
+      background-image: var(--icon-arrow-down);
+      background-position: calc(100% - 1ch) center;
+      background-size: 3ex;
+      padding-block: 0.75ch;
+      padding-inline: 1.75ch 3ch;
+      line-height: 1.5;
+    }
+
+    select:is(:hover,:focus) {
+      background-color: var(--_bg);
+    }
+
+    select:is(:hover, :focus) {
+      background-image: var(--icon-arrow-up);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      select {
+        --_bg: var(--_bg-dark);
+      }
+    }
+
+    /* ============================================================
+       AUTO-FILL
+    ============================================================ */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    textarea:-webkit-autofill,
+    textarea:-webkit-autofill:hover,
+    textarea:-webkit-autofill:focus,
+    select:-webkit-autofill,
+    select:-webkit-autofill:hover,
+    select:-webkit-autofill:focus {
+      -webkit-text-fill-color: var(--text-1);
+      -webkit-box-shadow: 0 0 0px 1e5px var(--gray-11) inset;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+
+    /* ============================================================
+       PLACEHOLDER
+    ============================================================ */
+    ::placeholder {
+      color: var(--text-2);
+      font-style: italic;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      ::placeholder {
+        color: var(--surface-4);
+      }
+    }
+
+    ::-moz-placeholder {
+      opacity: 1;
+    }
+
+    /* ============================================================
+       LAYOUT
+    ============================================================ */
+    fieldset, form > header {
+      display: grid;
+      gap: var(--size-2);
+    }
+
+    form {
+      display: grid;
+      gap: var(--size-8);
+    }
+
+    legend {
+      margin-inline-start: -2px;
+      color: var(--text-2);
+      font-weight: var(--font-weight-6);
+    }
+
+    fieldset {
+      gap: var(--size-3);
+      max-inline-size: max-content;
+    }
+
+    @media (width > 720px) {
+      fieldset {
+        gap: var(--size-2);
+      }
+    }
+
+    fieldset > div {
+      display: grid;
+      grid-auto-columns: 1fr;
+      gap: var(--size-2) var(--size-3);
+      align-items: center;
+    }
+
+    @media (width > 720px) {
+      fieldset > div {
+        grid-template-columns: var(--size-content-1) auto;
+      }
+    }
+
+    fieldset > div > label {
+      justify-self: start;
+    }
+
+    fieldset > footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: var(--size-3);
+      margin-block-start: var(--size-6);
+    }
+
+    fieldset > footer > menu:only-child {
+      margin-inline-start: auto;
+    }
+
+    fieldset > ul {
+      padding: 0;
+      margin: 0;
+      list-style-type: none;
+      display: grid;
+      gap: var(--size-2);
+    }
+
+    fieldset > ul > li {
+      padding: 0;
+    }
+
+    fieldset > ul > li > label {
+      display: inline-flex;
+      align-items: baseline;
+      gap: var(--size-4);
+      max-inline-size: var(--size-content-1);
+    }
+
+    fieldset > ul > li > label > input {
+      margin-inline-start: 0;
+      flex-shrink: 0;
+    }
+
+    /* ============================================================
+       SEARCH
+    ============================================================ */
+    search > form {
+      gap: var(--size-3);
+      grid-template-columns: minmax(20ch, 1fr) auto;
+    }
+
+    search > form > label {
+      grid-column: span 2;
+    }
+
+    /* ============================================================
+       CHECKBOX / RADIO
+    ============================================================ */
+    :where(
+      input[type="checkbox"],
+      input[type="radio"]
+    ) {
+      aspect-ratio: 1;
+      box-shadow: var(--shadow-6);
+      transform-style: preserve-3d;
+      cursor: pointer;
+      --isLTR: 1;
+      --isRTL: -1;
+    }
+
+    :where(
+      input[type="checkbox"],
+      input[type="radio"]
+    ):dir(rtl) {
+      --isLTR: -1;
+      --isRTL: 1;
+    }
+
+    :where(
+      input[type="checkbox"],
+      input[type="radio"]
+    ):hover::before {
+      --thumb-scale: 1;
+    }
+
+    @media (hover: none) {
+      :where(
+        input[type="checkbox"],
+        input[type="radio"]
+      ) {
+        inline-size: 1.5rem;
+        block-size: 1.5rem;
+      }
+    }
+
+    :where(
+      input[type="checkbox"],
+      input[type="radio"]
+    )::before {
+      --thumb-scale: .01;
+      --thumb-highlight-size: 225%;
+      content: "";
+      inline-size: var(--thumb-highlight-size);
+      block-size: var(--thumb-highlight-size);
+      clip-path: circle(50%);
+      position: absolute;
+      inset-block-start: 50%;
+      inset-inline-start: 50%;
+      background: hsl(0 0% 50% / 20%);
+      transform-origin: center center;
+      transform: translateX(calc(var(--isRTL) * 50%)) translateY(-50%) translateZ(-1px) scale(var(--thumb-scale));
+      will-change: transform;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      :where(
+        input[type="checkbox"],
+        input[type="radio"]
+      )::before {
+        transition: transform .2s ease;
+      }
+    }
+
+    /* ============================================================
+       RANGE INPUT
+    ============================================================ */
+    input[type="range"] {
+      --track-height: .5ex;
+      --track-fill: 0%;
+      --track-color: var(--dark-surface);
+      --thumb-size: 3ex;
+      --thumb-offset: -1.25ex;
+      --thumb-highlight-color: lch(100 0 0 / 20%);
+      --thumb-highlight-size: 0px;
+      display: block;
+      inline-size: 100%;
+      margin: 1ex 0;
+      appearance: none;
+      background: transparent;
+      outline-offset: 5px;
+    }
+
+    @media (prefers-color-scheme: light) {
+      input[type="range"] {
+        --thumb-highlight-color: lch(0 0 0 / 20%);
+        --track-color: var(--surface-2);
+      }
+    }
+
+    @media (hover: none) {
+      input[type="range"] {
+        --thumb-size: 30px;
+        --thumb-offset: -14px;
+      }
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+      appearance: none;
+      block-size: var(--track-height);
+      border-radius: 5ex;
+      box-shadow: var(--inner-shadow-2);
+      background: linear-gradient(to right, transparent var(--track-fill), var(--track-color) 0%), var(--link);
+    }
+
+    input[type="range"]::-moz-range-track {
+      appearance: none;
+      block-size: var(--track-height);
+      border-radius: 5ex;
+      box-shadow: var(--inner-shadow-2);
+      background: linear-gradient(to right, transparent var(--track-fill), var(--track-color) 0%), var(--link);
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      cursor: ew-resize;
+      border: 3px solid var(--surface-1);
+      block-size: var(--thumb-size);
+      inline-size: var(--thumb-size);
+      margin-block-start: var(--thumb-offset);
+      border-radius: 50%;
+      background: var(--link);
+      box-shadow: 0 0 0 var(--thumb-highlight-size) var(--thumb-highlight-color);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      input[type="range"]::-webkit-slider-thumb {
+        transition: box-shadow .1s ease;
+      }
+    }
+
+    .fieldset-item:focus-within input[type="range"]::-webkit-slider-thumb {
+      border-color: var(--surface-2);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      appearance: none;
+      cursor: ew-resize;
+      border: 3px solid var(--surface-1);
+      block-size: var(--thumb-size);
+      inline-size: var(--thumb-size);
+      margin-block-start: var(--thumb-offset);
+      border-radius: 50%;
+      background: var(--link);
+      box-shadow: 0 0 0 var(--thumb-highlight-size) var(--thumb-highlight-color);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      input[type="range"]::-moz-range-thumb {
+        transition: box-shadow .1s ease;
+      }
+    }
+
+    .fieldset-item:focus-within input[type="range"]::-moz-range-thumb {
+      border-color: var(--surface-2);
+    }
+
+    input[type="range"]:is(:hover,:active) {
+      --thumb-highlight-size: 10px;
+    }
+
+    @media (pointer: coarse) {
+      input[type="checkbox"],
+      input[type="radio"] {
+        inline-size: var(--size-4);
+        block-size: var(--size-4);
+      }
+    }
+
+    /* ============================================================
+       BODY LAYOUT
+    ============================================================ */
+    body {
+      display: grid;
+      place-content: center;
+      padding: var(--size-5);
+      gap: var(--size-7);
+      background: var(--surface-1);
+      color: var(--text-1);
+      font-family: var(--font-sans);
+    }
+
+    .buttons-list {
+      display: flex;
+      gap: var(--size-3);
+    }
+
+    #signin__example {
+      gap: var(--size-4);
+    }
+
+    #signin__example > div {
+      grid-template-columns: 1fr;
+      gap: var(--size-2);
+    }
+
+    #signin__example > footer {
+      margin-block-start: var(--size-2);
+    }
+
+    #signin__example > footer > menu {
+      flex-direction: row-reverse;
+    }
+
+    /* ============================================================
+       HEADER
+    ============================================================ */
+    header {
+      text-align: center;
+      max-inline-size: 60ch;
+    }
+
+    header h3 {
+      font-size: var(--font-size-4);
+      color: var(--text-1);
+    }
+
+    header p {
+      color: var(--text-2);
+      font-size: var(--font-size-1);
+    }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 720px) {
+      body {
+        padding: var(--size-3);
+        gap: var(--size-4);
+      }
+
+      fieldset {
+        max-inline-size: 100%;
+        padding-inline: var(--size-3);
+      }
+
+      fieldset > div {
+        grid-template-columns: 1fr;
+        gap: var(--size-1);
+      }
+
+      search > form {
+        grid-template-columns: 1fr;
+      }
+
+      search > form > label {
+        grid-column: span 1;
+      }
+
+      #signin__example > div {
+        grid-template-columns: 1fr;
+      }
+
+      input[type="range"] {
+        --thumb-size: 24px;
+        --thumb-offset: -10px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: var(--size-2);
+      }
+
+      fieldset {
+        padding-inline: var(--size-2);
+        padding-block: var(--size-1) var(--size-2);
+      }
+
+      fieldset > footer {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      fieldset > footer > menu {
+        justify-content: center;
+      }
+
+      input:is(
+        [type=text],
+        [type=password],
+        [type=url],
+        [type=email],
+        [type=tel]
+      ) {
+        padding-inline-end: 2.5ch;
+      }
+
+      input[type="search"] {
+        padding-inline: 3.5ch 1ch;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h3>Example Vanilla Form</h3>
+  <p>With just the import from Open Props, no additional classes, have great looking forms.</p>
+</header>
+
+<form>
+  <fieldset id="forms__input">
+    <div>
+      <label for="input__name">Text Input</label>
+      <input id="input__name" name="name" type="text" placeholder="lorem">
+    </div>
+    <div>
+      <label for="required__input__name">Required Text Input</label>
+      <input id="required__input__name" name="name" type="text" required placeholder="ipsum">
+    </div>
+    <div>
+      <label for="input__password">Password</label>
+      <input id="input__password" type="password" autocomplete="new-password" placeholder="················">
+    </div>
+    <div>
+      <label for="input__webaddress">Web Address</label>
+      <input id="input__webaddress" type="url" placeholder="https://yoursite.com" autocomplete="url">
+    </div>
+    <div>
+      <label for="input__emailaddress">Email Address</label>
+      <input id="input__emailaddress" type="email" placeholder="name@email.com" autocomplete="email">
+    </div>
+    <div>
+      <label for="input__search">Search</label>
+      <input id="input__search" type="search" placeholder="Search for flavors" list="searches">
+      <datalist id="searches">
+        <option value="Chocolate">
+        <option value="Vanilla">
+        <option value="Strawberry">
+      </datalist>
+    </div>
+    <div>
+      <label for="input__phone">Phone Number</label>
+      <input id="input__phone" type="tel" inputmode="numeric" placeholder="999-999-9999" minlength="7" maxlength="12" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}">
+    </div>
+    <div>
+      <label for="input__text2">Number Input</label>
+      <input id="input__text2" type="number" placeholder="0-100" min="0" max="100">
+    </div>
+    <div>
+      <label for="input__readonly">Read only</label>
+      <input readonly id="input__readonly" type="text" value="Nope!">
+    </div>
+    <div>
+      <label for="input__disabled">Disabled</label>
+      <input disabled id="input__disabled" type="text" value="Nope!">
+    </div>
+    <footer>
+      <menu>
+        <button type="reset">Reset</button>
+      </menu>
+      <menu>
+        <button type="button">Cancel</button>
+        <button>Submit</button>
+      </menu>
+    </footer>
+    <legend>Input fields</legend>
+  </fieldset>
+</form>
+
+<form>
+  <fieldset id="forms__select">
+    <div>
+      <label for="select">Pick an option</label>
+      <select id="select">
+        <optgroup label="Option Group">
+          <option>Option One</option>
+          <option>Option Two</option>
+          <option>Option Three</option>
+        </optgroup>
+      </select>
+    </div>
+    <legend>Select menus</legend>
+  </fieldset>
+</form>
+
+<fieldset id="forms__checkbox">
+  <legend>Checkboxes</legend>
+  <ul class="list list--bare">
+    <li><label for="checkbox1"><input id="checkbox1" name="checkbox" type="checkbox" checked="checked"> Choice A</label></li>
+    <li><label for="checkbox2"><input id="checkbox2" name="checkbox" type="checkbox"> Choice B, something long enough to become multiline</label></li>
+    <li><label for="checkbox3"><input id="checkbox3" name="checkbox" type="checkbox"> Choice C</label></li>
+  </ul>
+</fieldset>
+
+<fieldset id="forms__radio">
+  <legend>Radio buttons</legend>
+  <ul class="list list--bare">
+    <li><label for="radio1"><input id="radio1" name="radio" type="radio" class="radio" checked="checked"> Option 1</label></li>
+    <li><label for="radio2"><input id="radio2" name="radio" type="radio" class="radio"> Option 2, something long enough to become multiline</label></li>
+    <li><label for="radio3"><input id="radio3" name="radio" type="radio" class="radio"> Option 3</label></li>
+  </ul>
+</fieldset>
+
+<fieldset id="forms__textareas">
+  <legend>Textareas</legend>
+  <textarea id="textarea" rows="8" cols="48" placeholder="Enter your message here"></textarea>
+  <footer>
+    <menu>
+      <button type="reset">Clear</button>
+    </menu>
+    <menu>
+      <button type="button">Cancel</button>
+      <button type="submit">Send</button>
+    </menu>
+  </footer>
+</fieldset>
+
+<fieldset id="forms__alone-fieldset">
+  <legend>Single</legend>
+  <label for="list__autocomplete">Text autocomplete</label>
+  <input type="text" id="list__autocomplete" list="searches">
+</fieldset>
+
+<form id="login">
+  <fieldset id="signin__example">
+    <legend>Sign In</legend>
+    <div>
+      <label for="input__username">Username</label>
+      <input id="input__username" name="username" type="text" required autocomplete="username" placeholder="mcgyver" pattern="^[a-zA-Z][a-zA-Z0-9-_\.]{1,20}$">
+    </div>
+    <div>
+      <label for="input__password2">Password</label>
+      <input id="input__password2" type="password" autocomplete="current-password" required placeholder="········" pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*$" title="Uppercase, lowercase and a number are required">
+    </div>
+    <footer>
+      <menu>
+        <button>Login</button>
+        <button type="reset">Clear</button>
+      </menu>
+    </footer>
+  </fieldset>
+</form>
+
+<fieldset>
+  <legend>Search</legend>
+  <section>
+    <search>
+      <form>
+        <label for="movie">Find a Movie</label>
+        <input type="search" id="movie">
+        <button type="submit">Search</button>
+      </form>
+    </search>
+  </section>
+</fieldset>
+
+<form action="#" method="post">
+  <fieldset>
+    <legend>Payment</legend>
+    <div>
+      <label for="cc-name">Name on card</label>
+      <input id="cc-name" name="cc-name" autocomplete="cc-name" maxlength="50" pattern="[\p{L} \-\.]+" placeholder="Full name" required>
+
+      <label for="cc-number">Card number</label>
+      <input id="cc-number" name="cc-number" autocomplete="cc-number" inputmode="numeric" maxlength="50" pattern="[\d ]{10,30}" placeholder="0000 0000 0000 0000" required>
+
+      <label for="cc-exp">Expiry date</label>
+      <input id="cc-exp" name="cc-exp" autocomplete="cc-exp" placeholder="MM/YY" maxlength="5" required style="max-inline-size: 9ch">
+
+      <label for="cc-csc">Security code</label>
+      <input id="cc-csc" name="cc-csc" inputmode="numeric" maxlength="3" placeholder="xxx" required style="max-inline-size: 6ch">
+    </div>
+
+    <footer>
+      <menu>
+        <button type="reset">Reset</button>
+      </menu>
+      <menu>
+        <button type="submit">Pay</button>
+      </menu>
+    </footer>
+  </fieldset>
+</form>
+
+<fieldset id="forms__html5">
+  <legend>Inputs Extended</legend>
+  <div>
+    <label for="file-in">File input</label>
+    <input type="file" id="file-in">
+  </div>
+  <div>
+    <label for="ic">Color input</label>
+    <input type="color" id="ic" value="#5c7cfa">
+  </div>
+  <div>
+    <label for="ir">Range input</label>
+    <input type="range" id="ir" value="10" style="--track-fill: 10%">
+  </div>
+  <div>
+    <label>Progress element</label>
+    <div>
+      <progress></progress>
+      <progress value=".5">50%</progress>
+    </div>
+  </div>
+  <div>
+    <label for="idd">Date input</label>
+    <input type="date" id="idd" value="1970-01-01">
+  </div>
+  <div>
+    <label for="idm">Month input</label>
+    <input type="month" id="idm" value="1970-01">
+  </div>
+  <div>
+    <label for="idw">Week input</label>
+    <input type="week" id="idw" value="1970-W01">
+  </div>
+  <div>
+    <label for="idtl">Datetime-local input</label>
+    <input type="datetime-local" id="idtl" value="1970-01-01T00:00">
+  </div>
+</fieldset>
+
+<script>
+  // Range input tracker
+  document.querySelectorAll('input[type="range"]').forEach(range => {
+    const updateFill = () => {
+      const max = parseFloat(range.getAttribute('max')) || 100;
+      const val = parseFloat(range.value) || 0;
+      const percent = (val / max) * 100;
+      range.style.setProperty('--track-fill', `${percent}%`);
+    };
+
+    range.addEventListener('input', updateFill);
+    updateFill();
+  });
+
+  // File input drag/drop
+  document.querySelectorAll('input[type="file"]').forEach(fileInput => {
+    fileInput.addEventListener('dragenter', () => fileInput.classList.add('dropping'));
+    fileInput.addEventListener('dragleave', () => fileInput.classList.remove('dropping'));
+    fileInput.addEventListener('drop', () => fileInput.classList.remove('dropping'));
+  });
+
+  console.log('📝 Styled Forms Demo | Open Props + Custom Styles');
+</script>
+
+</body>
+</html>
